@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-app-deployment
+  namespace: simple-app
+spec:
+  selector:
+    matchLabels:
+      app: simple-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: simple-app
+    spec:
+      containers:
+        - name: simple-app
+          image: simple_app:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ENCRYPT_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: simple-app-secret
+                  key: encrypt_pwd
+          ports:
+            - containerPort: 8080

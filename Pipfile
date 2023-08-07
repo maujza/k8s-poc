@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "0.73.0"
+requests = "2.27.1"
+pydantic = "1.9.0"
+uvicorn = {extras = ["standard"], version = "*"}
+pycrypto = "==2.6.1"
+types-requests = "*"
+black = "==22.6.0"
+flake8 = "==4.0.1"
+mypy = "==0.982"
+autoflake = "==1.4"
+pre-commit = "==2.15.0"
+httpx = "*"
+pydes = "*"
+pytest = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

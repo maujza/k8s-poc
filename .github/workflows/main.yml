@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+env:
+  EMOJI_DATA_URL: https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    container: 
+      image: python:3.9.10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.10
+
+      - name: Cache Pipenv dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install dependencies
+        run: |
+          pip install pipenv==2022.8.24
+          pipenv install --python 3.9.10
+
+  linting:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run pre-commit on all files
+        run: pipenv run pre-commit run --all-files
+
+  unit_test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run unit tests
+        run: pipenv run python -m unittest tests.test_emoji
+
+  api_test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run API tests
+        run: pipenv run pytest tests/test_api.py
+
+  get_emoji_data:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download emoji data
+        run: |
+          cd simple_app/app/utils
+          curl -O ${{ env.EMOJI_DATA_URL }}
